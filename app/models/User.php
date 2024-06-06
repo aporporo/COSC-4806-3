@@ -53,7 +53,8 @@ class User {
     $hash = password_hash($password, PASSWORD_DEFAULT);
     $statement = $db->prepare("INSERT INTO users (username, password) VALUES ('$username', '$hash')");
     $statement->execute();
-
+    header('Location: /login');
+    die;
   }
 
   //check if username exists in user table

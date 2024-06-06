@@ -24,6 +24,7 @@
 		    <button type="submit" class="btn btn-primary">Login</button>
 		</fieldset>
 		</form> 
+			<p><a href="/create">Register</a></p>
 	</div>
 </div>
     <?php require_once 'app/views/templates/footer.php' ?>
