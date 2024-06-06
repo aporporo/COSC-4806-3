@@ -7,6 +7,7 @@ class Create extends Controller {
     }
 
   public function verify() {
+    session_unset();
     $username = $_REQUEST['username'];
     $password = $_REQUEST['password'];
     $password2 = $_REQUEST['password2'];
