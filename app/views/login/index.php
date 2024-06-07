@@ -26,5 +26,12 @@
 		</form> 
 			<p><a href="/create">Register</a></p>
 	</div>
+	<div class="col-sm-6">
+			<br>
+	<?php if (isset($_SESSION['failedAuth']) && $_SESSION['failedAuth'] >= 3): ?>
+			<div class="alert alert-danger" role="alert">
+					<?php echo "Exceeded failed login attempts, please wait 60 seconds"; ?>
+			</div>
+	<?php endif ?>
 </div>
     <?php require_once 'app/views/templates/footer.php' ?>

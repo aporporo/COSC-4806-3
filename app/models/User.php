@@ -23,39 +23,53 @@ class User {
          * if username and password good then
          * $this->auth = true;
          */
-		$username = strtolower($username);
-		$db = db_connect();
-        $statement = $db->prepare("select * from users WHERE username = :name;");
-        $statement->bindValue(':name', $username);
-        $statement->execute();
-        $rows = $statement->fetch(PDO::FETCH_ASSOC);
-        //prepare log database for login attempts
-        $logStatement = $db->prepare("INSERT INTO log (username, attempt, time) VALUES (:username, :attempt, now())");
-        $logStatement->bindValue(':username', $username);
-		if (password_verify($password, $rows['password'])) {
-			$_SESSION['auth'] = 1;
-			$_SESSION['username'] = ucwords($username);
-			unset($_SESSION['failedAuth']);
-      // Sends successful login attempt to log database, 1 = success
-      $logStatement->bindValue(':attempt', 1);
-      $logStatement->execute();
-			header('Location: /home');
-			die;
-		} else {
-			if(isset($_SESSION['failedAuth'])) {
-				$_SESSION['failedAuth'] ++; //increment
-        // Sends unsuccessful login attempt to log database, 0 = failure
-        $logStatement->bindValue(':attempt', 0);
-        $logStatement->execute();
+		  $username = strtolower($username);
+		  $db = db_connect();
+      $statement = $db->prepare("select * from users WHERE username = :name;");
+      $statement->bindValue(':name', $username);
+      $statement->execute();
+      $rows = $statement->fetch(PDO::FETCH_ASSOC);
+      //prepare log database for login attempts
+      $logStatement = $db->prepare("INSERT INTO log (username, attempt, time) VALUES (:username, :attempt, now())");
+      $logStatement->bindValue(':username', $username);
+      //prepare log database to retrieve attempts
+      $logFetch = $db->prepare("select * from log ORDER BY id DESC LIMIT 1");
+      $logFetch->execute();
+      $logRows = $logFetch->fetch(PDO::FETCH_ASSOC);
+      $logTime = strtotime($logRows['time']);
+      //If 3 or more failed attempts, lock out user for 60 seconds
+      if ($_SESSION['failedAuth'] >= 3 && $logTime > (time() - 60)) {
+        
+        header('Location: /login');
+        die;
       } else {
-				$_SESSION['failedAuth'] = 1;
-        // Sends unsuccessful login attempt to log database, 0 = failure
-        $logStatement->bindValue(':attempt', 0);
-        $logStatement->execute();
-			}
-			header('Location: /login');
-			die;
-		}
+    		if (password_verify($password, $rows['password'])) {
+    			$_SESSION['auth'] = 1;
+    			$_SESSION['username'] = ucwords($username);
+    			unset($_SESSION['failedAuth']);
+          // Sends successful login attempt to log database, 1 = success
+          $logStatement->bindValue(':attempt', 1);
+          $logStatement->execute();
+    			header('Location: /home');
+    			die;
+    		} else {
+    			if(isset($_SESSION['failedAuth'])) {
+            
+    				$_SESSION['failedAuth'] ++; //increment
+            // Sends unsuccessful login attempt to log database, 0 = failure
+            $logStatement->bindValue(':attempt', 0);
+            $logStatement->execute();
+            
+          } else {
+    				$_SESSION['failedAuth'] = 1;
+            // Sends unsuccessful login attempt to log database, 0 = failure
+            $logStatement->bindValue(':attempt', 0);
+            $logStatement->execute();
+    			}
+    			header('Location: /login');
+    			die;
+    		}
+      }
     }
     
 
