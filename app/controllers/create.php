@@ -10,6 +10,7 @@ class Create extends Controller {
     session_unset();
     $username = $_REQUEST['username'];
     $password = $_REQUEST['password'];
+    //$password = trim($_REQUEST['password']);
     $password2 = $_REQUEST['password2'];
     $user = $this->model('User');
     
@@ -26,9 +27,13 @@ class Create extends Controller {
     } else if (strlen($password) < 8) {
       $_SESSION['password_length_error'] = 1;
       header ('location: /create');
-    }
+    //check password for at least one digit, one lowercase, one uppercase, and one special character
+    //I tried playing around with this line of code for a really long time and I couldn't get it to work without adding a length constraint
+    } else if (!preg_match('/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/', $password)) {
+      $_SESSION['password_special_error'] = $password;
+      header ('location: /create');
     //if all checks pass, create user
-    else {
+    } else {
       $user->create_user($username, $password);
       header ('location: /login');
     }
