@@ -29,23 +29,35 @@ class User {
         $statement->bindValue(':name', $username);
         $statement->execute();
         $rows = $statement->fetch(PDO::FETCH_ASSOC);
-		
+        //prepare log database for login attempts
+        $logStatement = $db->prepare("INSERT INTO log (username, attempt, time) VALUES (:username, :attempt, now())");
+        $logStatement->bindValue(':username', $username);
 		if (password_verify($password, $rows['password'])) {
 			$_SESSION['auth'] = 1;
 			$_SESSION['username'] = ucwords($username);
 			unset($_SESSION['failedAuth']);
+      // Sends successful login attempt to log database
+      $logStatement->bindValue(':attempt', 1);
+      $logStatement->execute();
 			header('Location: /home');
 			die;
 		} else {
 			if(isset($_SESSION['failedAuth'])) {
 				$_SESSION['failedAuth'] ++; //increment
-			} else {
+        // Sends unsuccessful login attempt to log database
+        $logStatement->bindValue(':attempt', 0);
+        $logStatement->execute();
+      } else {
 				$_SESSION['failedAuth'] = 1;
+        // Sends unsuccessful login attempt to log database
+        $logStatement->bindValue(':attempt', 0);
+        $logStatement->execute();
 			}
 			header('Location: /login');
 			die;
 		}
     }
+    
 
   //create user and insert into user table
   public function create_user ($username, $password) {
