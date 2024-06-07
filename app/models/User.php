@@ -29,7 +29,7 @@ class User {
       $statement->bindValue(':name', $username);
       $statement->execute();
       $rows = $statement->fetch(PDO::FETCH_ASSOC);
-      //prepare log database for login attempts
+      //prepare log database to insert login attempts
       $logStatement = $db->prepare("INSERT INTO log (username, attempt, time) VALUES (:username, :attempt, now())");
       $logStatement->bindValue(':username', $username);
       //prepare log database to retrieve attempts
@@ -39,9 +39,9 @@ class User {
       $logTime = strtotime($logRows['time']);
       //If 3 or more failed attempts, lock out user for 60 seconds
       if ($_SESSION['failedAuth'] >= 3 && $logTime > (time() - 60)) {
-        
         header('Location: /login');
         die;
+        //Else continue to verify password
       } else {
     		if (password_verify($password, $rows['password'])) {
     			$_SESSION['auth'] = 1;
@@ -54,12 +54,10 @@ class User {
     			die;
     		} else {
     			if(isset($_SESSION['failedAuth'])) {
-            
     				$_SESSION['failedAuth'] ++; //increment
             // Sends unsuccessful login attempt to log database, 0 = failure
             $logStatement->bindValue(':attempt', 0);
             $logStatement->execute();
-            
           } else {
     				$_SESSION['failedAuth'] = 1;
             // Sends unsuccessful login attempt to log database, 0 = failure
