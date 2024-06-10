@@ -14,8 +14,8 @@ if (!isset($_SESSION['auth'])) {
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="mobile-web-app-capable" content="yes">
     </head>
-    <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <body style="background-color: #edf5fb">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
   <div class="container-fluid">
     <a class="navbar-brand" href="#">COSC 4806</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
